@@ -46,6 +46,12 @@
       border: 1px solid #fecaca;
     }
 
+    .next-ours {
+      background: #ede9fe;
+      color: #7c3aed;
+      border: 1px solid #c4b5fd;
+    }
+
     .next-hgs {
       background: #fef3c7;
       color: #d97706;
@@ -179,6 +185,21 @@
       <div class="card rounded-2xl p-5">
 
         <div class="text-slate-500 text-sm mb-2">
+          Ours 완료
+        </div>
+
+        <div
+          id="oursCount"
+          class="text-3xl font-bold text-violet-600"
+        >
+          0/20
+        </div>
+
+      </div>
+
+      <div class="card rounded-2xl p-5">
+
+        <div class="text-slate-500 text-sm mb-2">
           3D-HGS 완료
         </div>
 
@@ -240,6 +261,7 @@
           >
             <option value="ALL">전체</option>
             <option value="SfM 실행 필요">SfM 실행 필요</option>
+            <option value="Ours 실행 필요">Ours 실행 필요</option>
             <option value="3D-HGS 실행 필요">3D-HGS 실행 필요</option>
             <option value="AA-2DGS 실행 필요">AA-2DGS 실행 필요</option>
             <option value="전체 완료">전체 완료</option>
@@ -268,6 +290,10 @@
 
               <th class="px-6 py-4 font-semibold">
                 SfM (COLMAP)
+              </th>
+
+              <th class="px-6 py-4 font-semibold">
+                Ours
               </th>
 
               <th class="px-6 py-4 font-semibold">
@@ -348,6 +374,7 @@
         sfm: STATUS.WAITING,
         hgs: STATUS.WAITING,
         aa: STATUS.WAITING,
+        ours: STATUS.WAITING,
         note: ""
       }));
     }
@@ -385,6 +412,10 @@
         return "AA-2DGS 실행 필요";
       }
 
+      if (item.ours !== STATUS.DONE) {
+        return "Ours 실행 필요";
+      }
+
       return "전체 완료";
     }
 
@@ -409,6 +440,9 @@
 
         case "SfM 실행 필요":
           return "next-sfm";
+
+        case "Ours 실행 필요":
+          return "next-ours";
 
         case "3D-HGS 실행 필요":
           return "next-hgs";
@@ -510,6 +544,10 @@
           </td>
 
           <td class="px-6 py-4">
+            ${createStatusSelect(item.id, "ours", item.ours)}
+          </td>
+
+          <td class="px-6 py-4">
             ${createStatusSelect(item.id, "hgs", item.hgs)}
           </td>
 
@@ -607,6 +645,11 @@
         data.filter(v =>
           v.sfm === STATUS.DONE
         ).length;
+      
+      const oursDone =
+        data.filter(v =>
+          v.ours === STATUS.DONE
+        ).length;
 
       const hgsDone =
         data.filter(v =>
@@ -620,20 +663,26 @@
 
       document.getElementById("sfmCount")
         .textContent = `${sfmDone}/20`;
-
+            
+      document.getElementById("oursCount")
+        .textContent = `${oursDone}/20`;
+      
       document.getElementById("hgsCount")
         .textContent = `${hgsDone}/20`;
 
       document.getElementById("aaCount")
         .textContent = `${aaDone}/20`;
 
-      const totalSteps = data.length * 3;
+      const totalSteps = data.length * 4;
 
       let completedSteps = 0;
 
       data.forEach(item => {
 
         if (item.sfm === STATUS.DONE)
+          completedSteps++;
+
+        if (item.ours === STATUS.DONE)
           completedSteps++;
 
         if (item.hgs === STATUS.DONE)
