@@ -344,68 +344,40 @@
 
     async function loadSheetData() {
 
-      const url =
-        `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+      try {
 
-      async function loadSheetData() {
+        const url =
+          `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
-        try {
+        const response = await fetch(url);
 
-          const url =
-            `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+        const rows = await response.json();
 
-          const response = await fetch(url);
+        data = rows.map((row, i) => ({
 
-          const rows = await response.json();
+          id: i + 1,
 
-          data = rows.map((row, i) => ({
+          name: row.name || "",
 
-            id: i + 1,
+          sfm: row.sfm || STATUS.WAITING,
 
-            name: row.name || "",
+          ours: row.ours || STATUS.WAITING,
 
-            sfm: row.sfm || STATUS.WAITING,
+          hgs: row.hgs || STATUS.WAITING,
 
-            ours: row.ours || STATUS.WAITING,
+          aa: row.aa || STATUS.WAITING,
 
-            hgs: row.hgs || STATUS.WAITING,
+          note: row.note || ""
 
-            aa: row.aa || STATUS.WAITING,
+        }));
 
-            note: row.note || ""
+        renderTable();
 
-          }));
+      } catch (err) {
 
-          renderTable();
+        console.error("Sheet Load Error:", err);
 
-        } catch (err) {
-
-          console.error(err);
-
-        }
       }
-
-      const rows = await response.json();
-
-      data = rows.map((row, i) => ({
-
-        id: i + 1,
-
-        name: row.name || "",
-
-        sfm: row.sfm || STATUS.WAITING,
-
-        ours: row.ours || STATUS.WAITING,
-
-        hgs: row.hgs || STATUS.WAITING,
-
-        aa: row.aa || STATUS.WAITING,
-
-        note: row.note || ""
-
-      }));
-
-      renderTable();
     }
 
     function getNextTask(item) {
