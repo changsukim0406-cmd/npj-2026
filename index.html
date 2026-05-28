@@ -347,7 +347,43 @@
       const url =
         `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
 
-      const response = await fetch(url);
+      async function loadSheetData() {
+
+        try {
+
+          const url =
+            `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
+
+          const response = await fetch(url);
+
+          const rows = await response.json();
+
+          data = rows.map((row, i) => ({
+
+            id: i + 1,
+
+            name: row.name || "",
+
+            sfm: row.sfm || STATUS.WAITING,
+
+            ours: row.ours || STATUS.WAITING,
+
+            hgs: row.hgs || STATUS.WAITING,
+
+            aa: row.aa || STATUS.WAITING,
+
+            note: row.note || ""
+
+          }));
+
+          renderTable();
+
+        } catch (err) {
+
+          console.error(err);
+
+        }
+      }
 
       const rows = await response.json();
 
@@ -378,16 +414,16 @@
         return "SfM 실행 필요";
       }
 
+      if (item.ours !== STATUS.DONE) {
+        return "Ours 실행 필요";
+      }
+
       if (item.hgs !== STATUS.DONE) {
         return "3D-HGS 실행 필요";
       }
 
       if (item.aa !== STATUS.DONE) {
         return "AA-2DGS 실행 필요";
-      }
-
-      if (item.ours !== STATUS.DONE) {
-        return "Ours 실행 필요";
       }
 
       return "전체 완료";
@@ -487,7 +523,9 @@
         const next = getNextTask(item);
 
         const matchSearch =
-          item.name.toLowerCase().includes(search);
+          (item.name || "")
+            .toLowerCase()
+            .includes(search);
 
         const matchFilter =
           filter === "ALL" || next === filter;
